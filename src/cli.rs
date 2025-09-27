@@ -38,11 +38,20 @@ pub enum Commands {
     },
 
     /// Archive a track
-    Archive { pattern: String },
+    Archive {
+        /// Pattern to search for
+        pattern: String,
+    },
 
     /// Unarchive a track
-    Unarchive { pattern: String },
+    Unarchive {
+        /// Pattern to search for
+        pattern: String,
+    },
 
     /// Remove a track
-    Remove { pattern: String },
+    Remove {
+        /// Pattern to search for
+        pattern: String,
+    },
 }
