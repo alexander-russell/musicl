@@ -51,7 +51,7 @@ enum Commands {
 
         /// Loop tracks
         #[arg(long)]
-        repeat: bool, // `loop` is a reserved word
+        repeat: bool,
 
         /// Add backing tracks
         #[arg(long)]
@@ -68,10 +68,14 @@ enum Commands {
         path: PathBuf,
     },
 
-    /// Sync/update the library
-    Sync,
+    /// Synchronise database with files
+    Sync {
+        /// Loop tracks
+        #[arg(long)]
+        organise_library: bool,
+    },
 
-    /// Manage playlists
+    /// Build a playlist
     Playlist {
         /// Playlist name
         name: Option<String>,
@@ -106,81 +110,120 @@ fn main() -> Result<()> {
             repeat,
             backing,
             include_archive: _,
-        } => {
-            // println!("Playing tracks matching: {}", pattern);
-            let mut matches = find_matches(&db, &pattern)?;
+        } => handle_play(
+            &db,
+            pattern,
+            track,
+            multiple_tracks,
+            first,
+            shuffle,
+            reverse,
+            repeat,
+            backing,
+        )?,
 
-            // enforce `--track` and `--multiple-tracks`
-            if track && matches.len() > 1 && !multiple_tracks {
-                anyhow::bail!(
-                    "Multiple matches found, but --track without --multiple-tracks only allows one"
-                );
-            }
+        Commands::Add { path } => handle_add(path)?,
+        Commands::Sync { organise_library } => handle_sync(organise_library)?,
+        Commands::Playlist { name } => handle_playlist(name)?,
+        Commands::Archive { pattern } => handle_archive(pattern)?,
+        Commands::Unarchive { pattern } => handle_unarchive(pattern)?,
+        Commands::Remove { pattern } => handle_remove(pattern)?,
+    }
 
-            // apply `--first N`
-            if let Some(n) = first {
-                matches.truncate(n as usize);
-            }
+    Ok(())
+}
 
-            // apply `--shuffle`
-            if shuffle {
-                use rand::seq::SliceRandom;
-                let mut rng = rand::rng();
-                matches.shuffle(&mut rng);
-            }
+/// Handle the `play` command
+fn handle_play(
+    db: &str,
+    pattern: String,
+    track: bool,
+    multiple_tracks: bool,
+    first: Option<u32>,
+    shuffle: bool,
+    reverse: bool,
+    repeat: bool,
+    backing: bool,
+) -> Result<()> {
+    let mut matches = find_matches(db, &pattern)?;
 
-            // apply `--reverse`
-            if reverse {
-                matches.reverse();
-            }
+    if track && matches.len() > 1 && !multiple_tracks {
+        anyhow::bail!(
+            "Multiple matches found, but --track without --multiple-tracks only allows one"
+        );
+    }
 
-            // apply `--loop` (repeat 20 times)
-            if repeat {
-                let orig = matches.clone();
-                for _ in 1..20 {
-                    matches.extend_from_slice(&orig);
-                }
-            }
+    // apply `--first N`
+    if let Some(n) = first {
+        matches.truncate(n as usize);
+    }
 
-            // apply `--backing` (append 20 random items from db)
-            if backing {
-                use rand::seq::IteratorRandom;
-                let all_tracks: Vec<_> = db.lines().map(|s| s.to_string()).collect();
-                let mut rng = rand::rng();
-                let backing_tracks: Vec<_> = all_tracks.into_iter().choose_multiple(&mut rng, 20);
-                matches.extend(backing_tracks);
-            }
+    // apply `--shuffle`
+    if shuffle {
+        use rand::seq::SliceRandom;
+        let mut rng = rand::rng();
+        matches.shuffle(&mut rng);
+    }
 
-            for track in matches {
-                println!("{}", track);
-            }
-        }
-        Commands::Add { path } => {
-            println!("Adding: {:?}", path);
-            // TODO: implement add
-        }
-        Commands::Sync => {
-            println!("Syncing library...");
-            // TODO: implement sync
-        }
-        Commands::Playlist { name } => {
-            println!("Managing playlist: {:?}", name);
-            // TODO: implement playlist authoring
-        }
-        Commands::Archive { pattern } => {
-            println!("Archiving tracks: {}", pattern);
-            // TODO: implement archive
-        }
-        Commands::Unarchive { pattern } => {
-            println!("Unarchiving tracks: {}", pattern);
-            // TODO: implement unarchive
-        }
-        Commands::Remove { pattern } => {
-            println!("Removing tracks: {}", pattern);
-            // TODO: implement remove
+    // apply `--reverse`
+    if reverse {
+        matches.reverse();
+    }
+
+    // apply `--repeat`
+    if repeat {
+        let orig = matches.clone();
+        for _ in 1..20 {
+            matches.extend_from_slice(&orig);
         }
     }
 
+    // apply `--backing` (append 20 random items from db)
+    if backing {
+        use rand::seq::IteratorRandom;
+        let all_tracks: Vec<_> = db.lines().map(|s| s.to_string()).collect();
+        let mut rng = rand::rng();
+        let backing_tracks: Vec<_> = all_tracks.into_iter().choose_multiple(&mut rng, 20);
+        matches.extend(backing_tracks);
+    }
+
+    for track in matches {
+        println!("{}", track);
+    }
+
+    Ok(())
+}
+
+fn handle_add(path: PathBuf) -> Result<()> {
+    println!("Adding: {:?}", path);
+    Ok(())
+}
+
+fn handle_sync(organise_library: bool) -> Result<()> {
+    println!("Syncing database...");
+    if organise_library {
+        println!("  and organising library")
+    }
+    Ok(())
+}
+
+fn handle_playlist(name: Option<String>) -> Result<()> {
+    println!("Managing playlist: {:?}", name);
+    Ok(())
+}
+
+fn handle_archive(pattern: String) -> Result<()> {
+    println!("Archiving tracks: {}", pattern);
+    Ok(())
+}
+
+fn handle_unarchive(pattern: String) -> Result<()> {
+    println!("Unarchiving tracks: {}", pattern);
+    Ok(())
+}
+
+fn handle_remove(pattern: String) -> Result<()> {
+    println!("Removing tracks: {}", pattern);
     Ok(())
 }
 
