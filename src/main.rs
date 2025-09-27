@@ -51,7 +51,7 @@ enum Commands {
 
         /// Loop tracks
         #[arg(long)]
-        r#loop: bool, // `loop` is a reserved word
+        repeat: bool, // `loop` is a reserved word
 
         /// Add backing tracks
         #[arg(long)]
@@ -98,21 +98,62 @@ fn main() -> Result<()> {
             pattern,
             track,
             multiple_tracks,
-            lyric,
+            lyric: _,
             first,
-            sample,
+            sample: _,
             shuffle,
             reverse,
-            r#loop,
+            repeat,
             backing,
-            include_archive,
+            include_archive: _,
         } => {
             // println!("Playing tracks matching: {}", pattern);
-            let matches = find_matches(&db, &pattern)?;
+            let mut matches = find_matches(&db, &pattern)?;
+
+            // enforce `--track` and `--multiple-tracks`
+            if track && matches.len() > 1 && !multiple_tracks {
+                anyhow::bail!(
+                    "Multiple matches found, but --track without --multiple-tracks only allows one"
+                );
+            }
+
+            // apply `--first N`
+            if let Some(n) = first {
+                matches.truncate(n as usize);
+            }
+
+            // apply `--shuffle`
+            if shuffle {
+                use rand::seq::SliceRandom;
+                let mut rng = rand::rng();
+                matches.shuffle(&mut rng);
+            }
+
+            // apply `--reverse`
+            if reverse {
+                matches.reverse();
+            }
+
+            // apply `--loop` (repeat 20 times)
+            if repeat {
+                let orig = matches.clone();
+                for _ in 1..20 {
+                    matches.extend_from_slice(&orig);
+                }
+            }
+
+            // apply `--backing` (append 20 random items from db)
+            if backing {
+                use rand::seq::IteratorRandom;
+                let all_tracks: Vec<_> = db.lines().map(|s| s.to_string()).collect();
+                let mut rng = rand::rng();
+                let backing_tracks: Vec<_> = all_tracks.into_iter().choose_multiple(&mut rng, 20);
+                matches.extend(backing_tracks);
+            }
+
             for track in matches {
                 println!("{}", track);
             }
-            // TODO: implement playback
         }
         Commands::Add { path } => {
             println!("Adding: {:?}", path);
