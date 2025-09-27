@@ -14,10 +14,8 @@ struct Cli {
     command: Commands,
 }
 
-#[derive(Subcommand)]
-enum Commands {
-    /// Play tracks from the library
-    Play {
+#[derive(clap::Args)]
+struct PlayArgs {
         /// Pattern to search library
         pattern: String,
 
@@ -60,7 +58,12 @@ enum Commands {
         /// Include archived tracks
         #[arg(long)]
         include_archive: bool,
-    },
+    }
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Play tracks from the library
+    Play(PlayArgs),
 
     /// Add new music files to the library
     Add {
@@ -98,29 +101,7 @@ fn main() -> Result<()> {
         .with_context(|| format!("could not read file `{}`", cli.db.display()))?;
 
     match cli.command {
-        Commands::Play {
-            pattern,
-            track,
-            multiple_tracks,
-            lyric: _,
-            first,
-            sample: _,
-            shuffle,
-            reverse,
-            repeat,
-            backing,
-            include_archive: _,
-        } => handle_play(
-            &db,
-            pattern,
-            track,
-            multiple_tracks,
-            first,
-            shuffle,
-            reverse,
-            repeat,
-            backing,
-        )?,
+        Commands::Play(args) => handle_play(&db, args)?,
 
         Commands::Add { path } => handle_add(path)?,
         Commands::Sync { organise_library } => handle_sync(organise_library)?,
@@ -134,44 +115,34 @@ fn main() -> Result<()> {
 }
 
 /// Handle the `play` command
-fn handle_play(
-    db: &str,
-    pattern: String,
-    track: bool,
-    multiple_tracks: bool,
-    first: Option<u32>,
-    shuffle: bool,
-    reverse: bool,
-    repeat: bool,
-    backing: bool,
-) -> Result<()> {
-    let mut matches = find_matches(db, &pattern)?;
+fn handle_play(db: &str, args: PlayArgs) -> Result<()> {
+    let mut matches = find_matches(db, &args.pattern)?;
 
-    if track && matches.len() > 1 && !multiple_tracks {
+    if args.track && matches.len() > 1 && !args.multiple_tracks {
         anyhow::bail!(
             "Multiple matches found, but --track without --multiple-tracks only allows one"
         );
     }
 
     // apply `--first N`
-    if let Some(n) = first {
+    if let Some(n) = args.first {
         matches.truncate(n as usize);
     }
 
     // apply `--shuffle`
-    if shuffle {
+    if args.shuffle {
         use rand::seq::SliceRandom;
         let mut rng = rand::rng();
         matches.shuffle(&mut rng);
     }
 
     // apply `--reverse`
-    if reverse {
+    if args.reverse {
         matches.reverse();
     }
 
     // apply `--repeat`
-    if repeat {
+    if args.repeat {
         let orig = matches.clone();
         for _ in 1..20 {
             matches.extend_from_slice(&orig);
@@ -179,7 +150,7 @@ fn handle_play(
     }
 
     // apply `--backing` (append 20 random items from db)
-    if backing {
+    if args.backing {
         use rand::seq::IteratorRandom;
         let all_tracks: Vec<_> = db.lines().map(|s| s.to_string()).collect();
         let mut rng = rand::rng();
