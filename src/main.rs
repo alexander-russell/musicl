@@ -102,13 +102,12 @@ fn main() -> Result<()> {
 
     match cli.command {
         Commands::Play(args) => play::handle(&db, args)?,
-
-        Commands::Add { path } => handle_add(path)?,
-        Commands::Sync { organise_library } => handle_sync(organise_library)?,
-        Commands::Playlist { name } => handle_playlist(name)?,
-        Commands::Archive { pattern } => handle_archive(pattern)?,
-        Commands::Unarchive { pattern } => handle_unarchive(pattern)?,
-        Commands::Remove { pattern } => handle_remove(pattern)?,
+        Commands::Add { path } => add::handle(path)?,
+        Commands::Sync { organise_library } => sync::handle(organise_library)?,
+        Commands::Playlist { name } => playlist::handle(name)?,
+        Commands::Archive { pattern } => archive::handle(pattern)?,
+        Commands::Unarchive { pattern } => unarchive::handle(pattern)?,
+        Commands::Remove { pattern } => remove::handle(pattern)?,
     }
 
     Ok(())
@@ -168,37 +167,55 @@ mod play {
     }
 }
 
-fn handle_add(path: PathBuf) -> Result<()> {
-    println!("Adding: {:?}", path);
-    Ok(())
-}
-
-fn handle_sync(organise_library: bool) -> Result<()> {
-    println!("Syncing database...");
-    if organise_library {
-        println!("  and organising library")
+mod add {
+    use super::*;
+    pub fn handle(path: PathBuf) -> Result<()> {
+        println!("Adding: {:?}", path);
+        Ok(())
     }
-    Ok(())
 }
 
-fn handle_playlist(name: Option<String>) -> Result<()> {
-    println!("Managing playlist: {:?}", name);
-    Ok(())
+mod sync {
+    use super::*;
+    pub fn handle(organise_library: bool) -> Result<()> {
+        println!("Syncing database...");
+        if organise_library {
+            println!("  and organising library")
+        }
+        Ok(())
+    }
 }
 
-fn handle_archive(pattern: String) -> Result<()> {
-    println!("Archiving tracks: {}", pattern);
-    Ok(())
+mod playlist {
+    use super::*;
+    pub fn handle(name: Option<String>) -> Result<()> {
+        println!("Managing playlist: {:?}", name);
+        Ok(())
+    }
 }
 
-fn handle_unarchive(pattern: String) -> Result<()> {
-    println!("Unarchiving tracks: {}", pattern);
-    Ok(())
+mod archive {
+    use super::*;
+    pub fn handle(pattern: String) -> Result<()> {
+        println!("Archiving tracks: {}", pattern);
+        Ok(())
+    }
 }
 
-fn handle_remove(pattern: String) -> Result<()> {
-    println!("Removing tracks: {}", pattern);
-    Ok(())
+mod unarchive {
+    use super::*;
+    pub fn handle(pattern: String) -> Result<()> {
+        println!("Unarchiving tracks: {}", pattern);
+        Ok(())
+    }
+}
+
+mod remove {
+    use super::*;
+    pub fn handle(pattern: String) -> Result<()> {
+        println!("Removing tracks: {}", pattern);
+        Ok(())
+    }
 }
 
 fn find_matches(content: &str, pattern: &str) -> Result<Vec<String>> {
