@@ -104,64 +104,13 @@ fn main() -> Result<()> {
 
     match cli.command {
         Commands::Play(args) => commands::play::handle(&db, args)?,
-        Commands::Add { path } => add::handle(path)?,
-        Commands::Sync { organise_library } => sync::handle(organise_library)?,
-        Commands::Playlist { name } => playlist::handle(name)?,
-        Commands::Archive { pattern } => archive::handle(pattern)?,
-        Commands::Unarchive { pattern } => unarchive::handle(pattern)?,
-        Commands::Remove { pattern } => remove::handle(pattern)?,
+        Commands::Add { path } => commands::add::handle(path)?,
+        Commands::Sync { organise_library } => commands::sync::handle(organise_library)?,
+        Commands::Playlist { name } => commands::playlist::handle(name)?,
+        Commands::Archive { pattern } => commands::archive::handle(pattern)?,
+        Commands::Unarchive { pattern } => commands::unarchive::handle(pattern)?,
+        Commands::Remove { pattern } => commands::remove::handle(pattern)?,
     }
 
     Ok(())
-}
-
-mod add {
-    use super::*;
-    pub fn handle(path: PathBuf) -> Result<()> {
-        println!("Adding: {:?}", path);
-        Ok(())
-    }
-}
-
-mod sync {
-    use super::*;
-    pub fn handle(organise_library: bool) -> Result<()> {
-        println!("Syncing database...");
-        if organise_library {
-            println!("  and organising library")
-        }
-        Ok(())
-    }
-}
-
-mod playlist {
-    use super::*;
-    pub fn handle(name: Option<String>) -> Result<()> {
-        println!("Managing playlist: {:?}", name);
-        Ok(())
-    }
-}
-
-mod archive {
-    use super::*;
-    pub fn handle(pattern: String) -> Result<()> {
-        println!("Archiving tracks: {}", pattern);
-        Ok(())
-    }
-}
-
-mod unarchive {
-    use super::*;
-    pub fn handle(pattern: String) -> Result<()> {
-        println!("Unarchiving tracks: {}", pattern);
-        Ok(())
-    }
-}
-
-mod remove {
-    use super::*;
-    pub fn handle(pattern: String) -> Result<()> {
-        println!("Removing tracks: {}", pattern);
-        Ok(())
-    }
 }
