@@ -16,56 +16,11 @@ struct Cli {
     command: Commands,
 }
 
-#[derive(clap::Args)]
-struct PlayArgs {
-    /// Pattern to search library
-    pattern: String,
-
-    /// Search by track
-    #[arg(short = 't', long)]
-    track: bool,
-
-    /// Accept multiple tracks
-    #[arg(short = 'm', long)]
-    multiple_tracks: bool,
-
-    /// Search by lyric
-    #[arg(short = 'l', long)]
-    lyric: bool,
-
-    /// Select the first n tracks
-    #[arg(short = 'f', long)]
-    first: Option<u32>,
-
-    /// Randomly select n tracks
-    #[arg(short = 's', long)]
-    sample: Option<u32>,
-
-    /// Shuffle tracks
-    #[arg(long)]
-    shuffle: bool,
-
-    /// Reverse track order
-    #[arg(long)]
-    reverse: bool,
-
-    /// Loop tracks
-    #[arg(long)]
-    repeat: bool,
-
-    /// Add backing tracks
-    #[arg(long)]
-    backing: bool,
-
-    /// Include archived tracks
-    #[arg(long)]
-    include_archive: bool,
-}
 
 #[derive(Subcommand)]
 enum Commands {
     /// Play tracks from the library
-    Play(PlayArgs),
+    Play(commands::play::PlayArgs),
 
     /// Add new music files to the library
     Add {
