@@ -1,11 +1,9 @@
-use clap::Parser;
-use anyhow::{Context, Result};
-
 mod cli;
 mod commands;
 
+use clap::Parser;
+use anyhow::{Context, Result};
 use cli::{Cli, Commands};
-
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
