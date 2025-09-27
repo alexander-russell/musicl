@@ -165,6 +165,16 @@ mod play {
 
         Ok(())
     }
+
+    fn find_matches(content: &str, pattern: &str) -> Result<Vec<String>> {
+        let mut matches = Vec::new();
+        for line in content.lines() {
+            if line.contains(pattern) {
+                matches.push(line.to_string());
+            }
+        }
+        Ok(matches)
+    }
 }
 
 mod add {
@@ -216,14 +226,4 @@ mod remove {
         println!("Removing tracks: {}", pattern);
         Ok(())
     }
-}
-
-fn find_matches(content: &str, pattern: &str) -> Result<Vec<String>> {
-    let mut matches = Vec::new();
-    for line in content.lines() {
-        if line.contains(pattern) {
-            matches.push(line.to_string());
-        }
-    }
-    Ok(matches)
 }
