@@ -1,6 +1,8 @@
 use anyhow::{Result};
 use clap::Args;
 
+use crate::ctx::Ctx;
+
 #[derive(Args)]
 pub struct RemoveArgs {
     /// Database ID of the track
@@ -12,8 +14,8 @@ pub struct RemoveArgs {
     pattern: Option<String>,
 }
 
-pub fn handle(db: &str, args: RemoveArgs) -> Result<()> {
-    let _ = db;
+pub fn handle(ctx: &mut Ctx, args: RemoveArgs) -> Result<()> {
+    let _ = ctx;
     println!("Removing tracks: {:?}", args.id);
     Ok(())
 }

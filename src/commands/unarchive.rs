@@ -1,6 +1,8 @@
 use anyhow::{Result};
 use clap::Args;
 
+use crate::ctx::Ctx;
+
 #[derive(Args)]
 pub struct UnarchiveArgs {
     /// Database ID of the track
@@ -12,8 +14,8 @@ pub struct UnarchiveArgs {
     pattern: Option<String>,
 }
 
-pub fn handle(db: &str, args: UnarchiveArgs) -> Result<()> {
-    let _ = db;
+pub fn handle(ctx: &mut Ctx, args: UnarchiveArgs) -> Result<()> {
+    let _ = ctx;
     println!("Unarchiving tracks: {:?}", args.pattern);
     Ok(())
 }

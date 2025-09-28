@@ -1,6 +1,8 @@
 use anyhow::Result;
 use clap::Args;
 
+use crate::ctx::Ctx;
+
 #[derive(Args)]
 pub struct PlaylistArgs {
     /// Playlist name
@@ -19,8 +21,8 @@ pub struct PlaylistArgs {
     remove: bool,
 }
 
-pub fn handle(db: &str, args: PlaylistArgs) -> Result<()> {
-    let _ = db;
+pub fn handle(ctx: &mut Ctx, args: PlaylistArgs) -> Result<()> {
+    let _ = ctx;
     println!("Managing playlist: {:?}", args.name);
     Ok(())
 }
