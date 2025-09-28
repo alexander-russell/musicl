@@ -1,6 +1,11 @@
 use anyhow::Result;
 use clap::Args;
 
+use crate::ctx::Ctx;
+use crate::models::Song;
+use crate::schema::songs::dsl::*;
+use diesel::{prelude::*};
+
 #[derive(Args)]
 pub struct PlayArgs {
     /// Pattern to search library
@@ -47,8 +52,11 @@ pub struct PlayArgs {
     include_archive: bool,
 }
 
-pub fn handle(db: &str, args: PlayArgs) -> Result<()> {
-    let mut matches = find_matches(db, &args.pattern)?;
+pub fn handle(ctx: &mut Ctx, args: PlayArgs) -> Result<()> {
+    // let songs = "str";
+    // let mut matches = find_matches(songs, &args.pattern)?;
+
+    let mut matches = filter_songs(ctx.connection, args.pattern);
 
     if args.track && matches.len() > 1 && !args.multiple_tracks {
         anyhow::bail!(
@@ -74,35 +82,32 @@ pub fn handle(db: &str, args: PlayArgs) -> Result<()> {
     }
 
     // apply `--repeat`
-    if args.repeat {
-        let orig = matches.clone();
-        for _ in 1..20 {
-            matches.extend_from_slice(&orig);
-        }
-    }
+    // if args.repeat {
+    //     let orig = matches.clone();
+    //     for _ in 1..20 {
+    //         matches.extend_from_slice(&orig);
+    //     }
+    // }
 
     // apply `--backing` (append 20 random items from db)
-    if args.backing {
-        use rand::seq::IteratorRandom;
-        let all_tracks: Vec<_> = db.lines().map(|s| s.to_string()).collect();
-        let mut rng = rand::rng();
-        let backing_tracks: Vec<_> = all_tracks.into_iter().choose_multiple(&mut rng, 20);
-        matches.extend(backing_tracks);
-    }
+    // if args.backing {
+    //     use rand::seq::IteratorRandom;
+    //     let all_tracks: Vec<_> = db.lines().map(|s| s.to_string()).collect();
+    //     let mut rng = rand::rng();
+    //     let backing_tracks: Vec<_> = all_tracks.into_iter().choose_multiple(&mut rng, 20);
+    //     matches.extend(backing_tracks);
+    // }
 
-    for track in matches {
-        println!("{}", track);
+    for song in matches {
+        println!("{}", song.path);
     }
 
     Ok(())
 }
 
-fn find_matches(content: &str, pattern: &str) -> Result<Vec<String>> {
-    let mut matches = Vec::new();
-    for line in content.lines() {
-        if line.contains(pattern) {
-            matches.push(line.to_string());
-        }
-    }
-    Ok(matches)
+fn filter_songs(connection: & mut SqliteConnection, pattern: String) -> Vec<Song> {
+    songs
+        .filter(path.like(format!("%{}%", pattern)))
+        .load::<Song>(connection)
+        .expect("DB filter_songs failed")
 }
