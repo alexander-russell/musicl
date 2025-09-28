@@ -1,8 +1,17 @@
-use anyhow::{Result};
+use anyhow::Result;
+use clap::Args;
 
-pub fn handle(organise_library: bool) -> Result<()> {
+#[derive(Args)]
+pub struct SyncArgs {
+    /// Loop tracks
+    #[arg(long)]
+    organise_library: bool,
+}
+
+pub fn handle(db: &str, args: SyncArgs) -> Result<()> {
+    let _ = db;
     println!("Syncing database...");
-    if organise_library {
+    if args.organise_library {
         println!("  and organising library")
     }
     Ok(())

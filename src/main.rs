@@ -13,12 +13,12 @@ fn main() -> Result<()> {
 
     match cli.command {
         Commands::Play(args) => commands::play::handle(&db, args)?,
-        Commands::Add { path } => commands::add::handle(path)?,
-        Commands::Sync { organise_library } => commands::sync::handle(organise_library)?,
-        Commands::Playlist { name } => commands::playlist::handle(name)?,
-        Commands::Archive { pattern } => commands::archive::handle(pattern)?,
-        Commands::Unarchive { pattern } => commands::unarchive::handle(pattern)?,
-        Commands::Remove { pattern } => commands::remove::handle(pattern)?,
+        Commands::Add(args) => commands::add::handle(&db, args)?,
+        Commands::Sync(args) => commands::sync::handle(&db, args)?,
+        Commands::Playlist(args) => commands::playlist::handle(&db, args)?,
+        Commands::Archive(args) => commands::archive::handle(&db, args)?,
+        Commands::Unarchive(args) => commands::unarchive::handle(&db, args)?,
+        Commands::Remove(args) => commands::remove::handle(&db, args)?,
     }
 
     Ok(())

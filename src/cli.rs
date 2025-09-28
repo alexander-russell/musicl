@@ -19,39 +19,20 @@ pub enum Commands {
     Play(crate::commands::play::PlayArgs),
 
     /// Add new music files to the library
-    Add {
-        /// Path to new music file or folder
-        path: PathBuf,
-    },
+    Add(crate::commands::add::AddArgs),
 
     /// Synchronise database with files
-    Sync {
-        /// Loop tracks
-        #[arg(long)]
-        organise_library: bool,
-    },
+    Sync(crate::commands::sync::SyncArgs),
 
     /// Build a playlist
-    Playlist {
-        /// Playlist name
-        name: Option<String>,
-    },
+    Playlist(crate::commands::playlist::PlaylistArgs),
 
     /// Archive a track
-    Archive {
-        /// Pattern to search for
-        pattern: String,
-    },
+    Archive(crate::commands::archive::ArchiveArgs),
 
     /// Unarchive a track
-    Unarchive {
-        /// Pattern to search for
-        pattern: String,
-    },
+    Unarchive(crate::commands::unarchive::UnarchiveArgs),
 
     /// Remove a track
-    Remove {
-        /// Pattern to search for
-        pattern: String,
-    },
+    Remove(crate::commands::remove::RemoveArgs),
 }

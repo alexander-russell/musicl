@@ -1,6 +1,19 @@
-use anyhow::{Result};
+use anyhow::Result;
+use clap::Args;
 
-pub fn handle(pattern: String) -> Result<()> {
-    println!("Archiving tracks: {}", pattern);
+#[derive(Args)]
+pub struct ArchiveArgs {
+    /// Database ID of the track
+    #[arg(long, conflicts_with = "pattern")]
+    id: Option<u32>,
+
+    /// Pattern to search library
+    #[arg(long)]
+    pattern: Option<String>,
+}
+
+pub fn handle(db: &str, args: ArchiveArgs) -> Result<()> {
+    let _ = db;
+    println!("Archiving tracks: {:?}", args.pattern);
     Ok(())
 }
