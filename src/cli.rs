@@ -15,6 +15,9 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
+    /// Initialise new music library
+    Setup(crate::commands::setup::SetupArgs),
+
     /// Play tracks from the library
     Play(crate::commands::play::PlayArgs),
 

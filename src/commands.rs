@@ -1,3 +1,4 @@
+pub mod setup;
 pub mod play;
 pub mod add;
 pub mod sync;

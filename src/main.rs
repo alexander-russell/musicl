@@ -25,6 +25,7 @@ fn main() -> Result<()> {
     };
 
     match cli.command {
+        Commands::Setup(args) => commands::setup::handle(&mut ctx, args)?,
         Commands::Play(args) => commands::play::handle(&mut ctx, args)?,
         Commands::Add(args) => commands::add::handle(&mut ctx, args)?,
         Commands::Sync(args) => commands::sync::handle(&mut ctx, args)?,
