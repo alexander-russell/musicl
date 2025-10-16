@@ -20,19 +20,24 @@ use ctx::Ctx;
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    let mut ctx = Ctx {
-        connection: &mut establish_connection(cli.db),
-    };
-
     match cli.command {
-        Commands::Setup(args) => commands::setup::handle(&mut ctx, args)?,
-        Commands::Play(args) => commands::play::handle(&mut ctx, args)?,
-        Commands::Add(args) => commands::add::handle(&mut ctx, args)?,
-        Commands::Sync(args) => commands::sync::handle(&mut ctx, args)?,
-        Commands::Playlist(args) => commands::playlist::handle(&mut ctx, args)?,
-        Commands::Archive(args) => commands::archive::handle(&mut ctx, args)?,
-        Commands::Unarchive(args) => commands::unarchive::handle(&mut ctx, args)?,
-        Commands::Remove(args) => commands::remove::handle(&mut ctx, args)?,
+        Commands::Setup(args) => commands::setup::handle(args)?,
+        _ => {
+            let mut ctx = Ctx {
+                connection: &mut establish_connection(cli.db),
+            };
+            match cli.command {
+                
+                Commands::Play(args) => commands::play::handle(&mut ctx, args)?,
+                Commands::Add(args) => commands::add::handle(&mut ctx, args)?,
+                Commands::Sync(args) => commands::sync::handle(&mut ctx, args)?,
+                Commands::Playlist(args) => commands::playlist::handle(&mut ctx, args)?,
+                Commands::Archive(args) => commands::archive::handle(&mut ctx, args)?,
+                Commands::Unarchive(args) => commands::unarchive::handle(&mut ctx, args)?,
+                Commands::Remove(args) => commands::remove::handle(&mut ctx, args)?,
+                _ => unreachable!(),
+            }
+        }
     }
 
     Ok(())

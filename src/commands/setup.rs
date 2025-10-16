@@ -2,7 +2,6 @@ use anyhow::Result;
 use clap::Args;
 use std::path::PathBuf;
 
-use crate::ctx::Ctx;
 
 #[derive(Args)]
 pub struct SetupArgs {
@@ -10,8 +9,7 @@ pub struct SetupArgs {
     new_db: PathBuf,
 }
 
-pub fn handle(ctx: &mut Ctx, args: SetupArgs) -> Result<()> {
-    let _ = ctx;
+pub fn handle(args: SetupArgs) -> Result<()> {
     println!("Setting things up: {:?}", args.new_db);
     Ok(())
 }
